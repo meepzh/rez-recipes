@@ -65,7 +65,12 @@ def version():
 
 
 @early()
-def _bin_path():
+def _bin_path() -> str:
+    """Determines Python's binaries path.
+
+    Returns:
+        The path.
+    """
     from rez.package_py_utils import exec_python
 
     return exec_python(
@@ -75,7 +80,12 @@ def _bin_path():
 
 
 @early()
-def _cmake_path():
+def _cmake_path() -> str:
+    """Determines Python's CMake module path.
+
+    Returns:
+        The path.
+    """
     import pathlib
     from rez.package_py_utils import exec_command
 
@@ -92,6 +102,7 @@ def _cmake_path():
 
 @early()
 def _site_paths():
+    """See `rez.package_py_utils.find_site_python <https://rez.readthedocs.io/en/stable/api/rez.package_py_utils.html#rez.package_py_utils.find_site_python>`_."""
     import ast
     from rez.package_py_utils import exec_python
 
@@ -101,7 +112,12 @@ def _site_paths():
     return ast.literal_eval(paths_literal)
 
 
-def _version():
+def _version() -> str:
+    """Determines Python's version string.
+
+    Returns:
+        The version.
+    """
     from rez.package_py_utils import exec_python
 
     return exec_python(

@@ -40,7 +40,12 @@ def version():
 
 
 @early()
-def _cmake_path():
+def _cmake_path() -> str:
+    """Determines PySide2's CMake module path.
+
+    Returns:
+        The path.
+    """
     import pathlib
     from rez.package_py_utils import exec_command
 
@@ -55,7 +60,12 @@ def _cmake_path():
                 return str(pathlib.Path(path).parent)
 
 
-def _version():
+def _version() -> str:
+    """Determines PySide2's version string.
+
+    Returns:
+        The version.
+    """
     from rez.package_py_utils import exec_python
 
     return exec_python("version", ["import PySide2", "print(PySide2.__version__)"])
