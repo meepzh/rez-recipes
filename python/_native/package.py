@@ -30,13 +30,13 @@ def tools():
         out, err = exec_command("tools", ["pacman", "-Ql", "python"])
     except FileNotFoundError:
         py_major, py_minor, _ = this.__version.split(".")
+        tools = ["2to3", f"2to3-{py_major}.{py_minor}"]
         for version in (
             "",
             py_major,
             f"{py_major}.{py_minor}",
         ):
             for tool in (
-                "2to3",
                 "idle",
                 "pydoc",
                 "python",
