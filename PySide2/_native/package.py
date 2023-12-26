@@ -39,6 +39,9 @@ def version():
     return this.__version + "-native"
 
 
+_native = True
+
+
 @early()
 def _cmake_path() -> str:
     """Determines PySide2's CMake module path.

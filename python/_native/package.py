@@ -64,6 +64,9 @@ def version():
     return this.__version + "-native"
 
 
+_native = True
+
+
 @early()
 def _bin_path() -> str:
     """Determines Python's binaries path.
