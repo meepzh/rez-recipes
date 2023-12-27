@@ -20,6 +20,9 @@ description = (
 )
 
 
+external = True
+
+
 @early()
 def tools():
     from rez.package_py_utils import exec_command

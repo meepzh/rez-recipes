@@ -20,6 +20,9 @@ description = (
 )
 
 
+external = True
+
+
 @early()
 def requires():
     requires = []

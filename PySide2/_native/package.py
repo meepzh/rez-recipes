@@ -20,6 +20,9 @@ description = (
 )
 
 
+external = True
+
+
 @early()
 def requires():
     from rez.package_py_utils import find_site_python
