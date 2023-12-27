@@ -25,6 +25,19 @@ def requires():
     return [this.__maya_package.qualified_name]
 
 
+@early()
+def tools():
+    import pathlib
+
+    tools = []
+
+    for child in pathlib.Path(__maya_package._bin_path).iterdir():
+        if child.stem.startswith("pyside"):
+            tools.append(child.stem)
+
+    return tools
+
+
 uuid = "recipes.PySide2.maya"
 
 
