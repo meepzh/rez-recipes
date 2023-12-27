@@ -1,4 +1,4 @@
-import collections.abc
+import maya_packaging
 
 
 name = "maya"
@@ -12,6 +12,9 @@ build_command = False
 
 def commands():
     env.PATH.append("{this._bin_path}")
+
+    # https://groups.google.com/g/rez-config/c/2IWclNTJEk0/m/MGAA-ZB-BwAJ
+    env.PYTHON_EXE = "mayapy"
 
 
 description = (
@@ -27,19 +30,21 @@ external = True
 def requires():
     requires = []
 
-    python_ver = this._exec_mayapy(
+    python_ver = maya_packaging.exec_mayapy(
         "requires",
         ["import platform", "print(platform.python_version())"],
+        this._bin_path,
         initialize=False,
     )
-    requires.append(f"~python-{python_ver}")
+    requires.append(f"~python-{python_ver}-_maya")
 
-    pyside2_ver = this._exec_mayapy(
+    pyside2_ver = maya_packaging.exec_mayapy(
         "requires",
         ["import PySide2", "print(PySide2.__version__)"],
+        this._bin_path,
         initialize=False,
     )
-    requires.append(f"~PySide2-{pyside2_ver}")
+    requires.append(f"~PySide2-{pyside2_ver}-_maya")
 
     return requires
 
@@ -86,78 +91,13 @@ def version():
 _native = True
 
 
-def __bin_path() -> str:
-    """Determines Maya's binaries path.
-
-    Returns:
-        The path.
-    """
-    import pathlib
-    from rez.package_py_utils import exec_command
-
-    try:
-        out, err = exec_command("_bin_path", ["pacman", "-Ql", "maya"])
-    except FileNotFoundError:
-        from rez.exceptions import InvalidPackageError
-
-        raise InvalidPackageError("Cannot determine '_bin_path' without 'pacman'")
-    else:
-        for path in out.split("\n"):
-            if path.endswith("bin/mayapy"):
-                path = path.partition(" ")[2]
-                return str(pathlib.Path(path).parent)
-
-
-def _exec_mayapy(
-    attr: str, src: collections.abc.Iterable[str] | str, initialize: bool = True
-) -> str:
-    """Uses mayapy to determine a package attribute.
-
-    Args:
-        attr: The name of the package attribute.
-        src: Lines of Python code to execute.
-        initialize: Loads the Maya libraries.
-
-    Returns:
-        The computed value.
-    """
-    import pathlib
-    import subprocess
-
-    if isinstance(src, str):
-        src = [src]
-    else:
-        src = list(src)
-
-    if initialize:
-        src = ["import maya.standalone", "maya.standalone.initialize()"] + src
-
-    mayapy_bin = pathlib.Path(_bin_path, "mayapy")
-    proc = subprocess.Popen(
-        [mayapy_bin, "-c", "; ".join(src)],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True,
-    )
-    out, err = proc.communicate()
-
-    if proc.returncode:
-        from rez.exceptions import InvalidPackageError
-
-        raise InvalidPackageError(
-            f"Error determining package attribute '{attr}':\n{err}"
-        )
-
-    return out.strip()
-
-
 def _version() -> str:
     """Determines Maya's version string.
 
     Returns:
         The version.
     """
-    out = _exec_mayapy(
+    out = maya_packaging.exec_mayapy(
         "version",
         [
             "from maya import cmds",
@@ -168,9 +108,10 @@ def _version() -> str:
                 ".{cmds.about(cutIdentifier=True)}')"
             ),
         ],
+        _bin_path,
     )
     return out.rpartition("\n")[2]
 
 
-_bin_path = __bin_path()
+_bin_path = maya_packaging.bin_path()
 __version = _version()

@@ -10,6 +10,9 @@ build_command = False
 def commands():
     env.PATH.append("{this._bin_path}")
 
+    # https://groups.google.com/g/rez-config/c/2IWclNTJEk0/m/MGAA-ZB-BwAJ
+    env.PYTHON_EXE = "python"
+
     if building and this._cmake_path:
         env.CMAKE_MODULE_PATH.append("{this._cmake_path}")
 
