@@ -38,7 +38,7 @@ def tools():
     return tools
 
 
-uuid = "recipes.PySide2.maya"
+uuid = "recipes.PySide2"
 
 
 variants = [["platform-**", "arch-**", "os-**"]]

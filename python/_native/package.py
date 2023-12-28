@@ -59,7 +59,7 @@ def tools():
     return tools
 
 
-uuid = "recipes.python.native"
+uuid = "recipes.python"
 
 
 variants = [["platform-**", "arch-**", "os-**"]]

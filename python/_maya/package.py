@@ -21,7 +21,7 @@ def requires():
     return [this.__maya_package.qualified_name]
 
 
-uuid = "recipes.python.maya"
+uuid = "recipes.python"
 
 
 variants = [["platform-**", "arch-**", "os-**"]]

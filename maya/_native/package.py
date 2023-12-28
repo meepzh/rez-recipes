@@ -77,7 +77,7 @@ def tools():
     return tools
 
 
-uuid = "recipes.maya.native"
+uuid = "recipes.maya"
 
 
 variants = [["platform-**", "arch-**", "os-**"]]

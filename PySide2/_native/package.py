@@ -31,7 +31,7 @@ def requires():
     return [python_pkg.qualified_name]
 
 
-uuid = "recipes.PySide2.native"
+uuid = "recipes.PySide2"
 
 
 variants = [["platform-**", "arch-**", "os-**"]]
