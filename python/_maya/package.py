@@ -36,6 +36,20 @@ def version():
 _native = True
 
 
+@early()
+def _site_paths():
+    """See `rez.package_py_utils.find_site_python <https://rez.readthedocs.io/en/stable/api/rez.package_py_utils.html#rez.package_py_utils.find_site_python>`_."""
+    import ast
+
+    paths_literal = maya_packaging.exec_mayapy(
+        "_site_paths",
+        ["import site", "print(site.getsitepackages())"],
+        __maya_package._bin_path,
+        initialize=False,
+    )
+    return ast.literal_eval(paths_literal)
+
+
 def _version() -> str:
     """Determines the version of Maya's internal Python installation.
 
