@@ -20,9 +20,7 @@ description = "Dummy package for Maya's internal PySide2 installation."
 external = True
 
 
-@early()
-def requires():
-    return [this.__maya_package.qualified_name]
+requires = ["maya-**"]
 
 
 @early()
