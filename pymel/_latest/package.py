@@ -20,7 +20,7 @@ description = "Python in Maya Done Right"
 external = True
 
 
-requires = ["maya-2020+<2025"]
+requires = ["maya-2020+"]
 
 
 tools = ["ipymel"]
@@ -44,20 +44,6 @@ def version():
     return out.partition("(")[2].partition(")")[0]
 
 
-def _python_version() -> str:
-    """Determines the Python version being used.
-
-    Returns:
-        The version.
-    """
-    return maya_packaging.exec_mayapy(
-        "requires",
-        ["import platform", "print(platform.python_version())"],
-        __maya_package._bin_path,
-        initialize=False,
-    )
-
-
 @early()
 def _site_path() -> str:
     """Caches the site-packages path relative to the installation directory.
@@ -74,4 +60,6 @@ def _site_path() -> str:
 
 __maya_package = maya_packaging.latest_existing_package()
 __mayapy_path = str(pathlib.Path(__maya_package._bin_path, "mayapy"))
-__python_version = _python_version()
+__python_version = maya_packaging.get_python_version(
+    cached_bin_path=__maya_package._bin_path
+)

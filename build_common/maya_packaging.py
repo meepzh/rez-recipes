@@ -42,6 +42,7 @@ def exec_mayapy(
     Args:
         attr: The name of the package attribute.
         src: Lines of Python code to execute.
+        cached_bin_path: The bin path of the mayapy executable to reuse.
         initialize: Loads the Maya libraries.
 
     Returns:
@@ -74,6 +75,25 @@ def exec_mayapy(
         )
 
     return out.strip()
+
+
+def get_python_version(cached_bin_path: str = None) -> str:
+    """Determines the version of Maya's internal Python installation.
+
+    Args:
+        cached_bin_path: The bin path of the mayapy executable to reuse.
+
+    Returns:
+        The version.
+    """
+    cached_bin_path = cached_bin_path or bin_path()
+
+    return exec_mayapy(
+        "_version",
+        ["import platform", "print(platform.python_version())"],
+        cached_bin_path,
+        initialize=False,
+    )
 
 
 def latest_existing_package() -> Package:
