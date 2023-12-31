@@ -15,6 +15,9 @@ from rez.package_py_utils import exec_command
 def bin_path() -> str:
     """Determines Maya's binaries path.
 
+    Raises:
+        InvalidPackageError: When the bin path cannot be determined.
+
     Returns:
         The path.
     """
@@ -44,6 +47,9 @@ def exec_mayapy(
         src: Lines of Python code to execute.
         cached_bin_path: The bin path of the mayapy executable to reuse.
         initialize: Loads the Maya libraries.
+
+    Raises:
+        InvalidPackageError: When mayapy returns an error code.
 
     Returns:
         The computed value.
@@ -83,6 +89,9 @@ def get_python_version(cached_bin_path: str = None) -> str:
     Args:
         cached_bin_path: The bin path of the mayapy executable to reuse.
 
+    Raises:
+        InvalidPackageError: When mayapy returns an error code.
+
     Returns:
         The version.
     """
@@ -99,6 +108,9 @@ def get_python_version(cached_bin_path: str = None) -> str:
 def latest_existing_package() -> Package:
     """Searches the installed Rez packages for the highest Maya package installation
     with an installation that exists on disk.
+
+    Raises:
+        InvalidPackageError: When the ``maya`` package cannot be found.
 
     Returns:
         The Maya package.
