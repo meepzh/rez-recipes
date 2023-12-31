@@ -49,7 +49,7 @@ def version():
     import re
     from urllib.request import urlopen
 
-    with urlopen(f"https://api.github.com/repos/mgear-dev/mgear4/tags") as response:
+    with urlopen("https://api.github.com/repos/mgear-dev/mgear4/tags") as response:
         tag_data = json.load(response)
 
     valid_tag_pattern = re.compile(r"\d+\.\d+\.\d+$")
