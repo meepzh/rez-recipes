@@ -3,7 +3,9 @@ cmake_minimum_required(VERSION 3.14)
 include(FetchContent)
 include(RezBuild)
 
-set(AUTODESK_PACKAGE_NAME "ngskintools2")
+set(AUTODESK_PACKAGE_NAME
+    "ngskintools2"
+    CACHE STRING)
 
 # Show download progress
 set(FETCHCONTENT_QUIET OFF)
@@ -19,11 +21,11 @@ file(RELATIVE_PATH build_subpath ${CMAKE_SOURCE_DIR} ${ngskintools_BINARY_DIR})
 
 # Reduce components in PackageContents.xml
 if(APPLE)
-  set(MAYA_PACKAGE_PLATFORM "macOS")
+  set(maya_package_platform "macOS")
 elseif(WIN32)
-  set(MAYA_PACKAGE_PLATFORM "win64")
+  set(maya_package_platform "win64")
 else()
-  set(MAYA_PACKAGE_PLATFORM $ENV{REZ_PLATFORM_VERSION})
+  set(maya_package_platform $ENV{REZ_PLATFORM_VERSION})
 endif()
 if(UNIX)
   execute_process(COMMAND sed -i "/\\/Components/q"
@@ -33,7 +35,7 @@ file(
   APPEND "${ngskintools_BINARY_DIR}/PackageContents.xml"
   "
 \t<Components>
-\t\t<RuntimeRequirements SupportPath=\"./Contents/docs/\" OS=\"${MAYA_PACKAGE_PLATFORM}\" Platform=\"Maya\" SeriesMin=\"$ENV{REZ_MAYA_MAJOR_VERSION}\" SeriesMax=\"$ENV{REZ_MAYA_MAJOR_VERSION}\" />
+\t\t<RuntimeRequirements SupportPath=\"./Contents/docs/\" OS=\"${maya_package_platform}\" Platform=\"Maya\" SeriesMin=\"$ENV{REZ_MAYA_MAJOR_VERSION}\" SeriesMax=\"$ENV{REZ_MAYA_MAJOR_VERSION}\" />
 \t\t<ComponentEntry ModuleName=\"./Contents/plug-ins/ngSkinTools2.so\" />
 \t</Components>
 </ApplicationPackage>")

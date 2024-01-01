@@ -16,14 +16,14 @@ list(APPEND shapes_modules "rampWeights" "SHAPES" "SHAPESBrush" "weightDriver")
 
 # Generate new .mod files with only the platform being targeted
 if(WIN32)
-  set(MAYA_MODULE_PLATFORM "win64")
+  set(maya_module_platform "win64")
 else()
-  set(MAYA_MODULE_PLATFORM $ENV{REZ_PLATFORM_VERSION})
+  set(maya_module_platform $ENV{REZ_PLATFORM_VERSION})
 endif()
 foreach(module ${shapes_modules})
   file(
     WRITE "${shapes_BINARY_DIR}/modules/${module}.mod"
-    "+ MAYAVERSION:$ENV{REZ_MAYA_MAJOR_VERSION} PLATFORM:${MAYA_MODULE_PLATFORM} \
+    "+ MAYAVERSION:$ENV{REZ_MAYA_MAJOR_VERSION} PLATFORM:${maya_module_platform} \
       ${module} $ENV{REZ_BUILD_PROJECT_VERSION} ./${module}")
 endforeach()
 
@@ -48,7 +48,7 @@ if(APPLE)
 elseif(LINUX)
   set(plug_in_subdir "linux64")
 else()
-  set(plug_in_subdir ${MAYA_MODULE_PLATFORM})
+  set(plug_in_subdir ${maya_module_platform})
 endif()
 foreach(module ${shapes_modules})
   set(plug_in_path
