@@ -22,6 +22,9 @@ description = "The versatile blend shape editor for Autodesk Maya"
 external = True
 
 
+plugin_for = ["maya"]
+
+
 requires = ["maya-2020+"]
 
 

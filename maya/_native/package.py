@@ -26,6 +26,9 @@ description = (
 external = True
 
 
+has_plugins = True
+
+
 @early()
 def requires():
     requires = []

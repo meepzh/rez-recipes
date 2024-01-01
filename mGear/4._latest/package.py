@@ -18,6 +18,9 @@ description = "Open source rigging and animation framework for Autodesk Maya."
 external = True
 
 
+plugin_for = ["maya"]
+
+
 def pre_build_commands():
     env.FETCH_URL = f"https://github.com/mgear-dev/mgear4/releases/download/{this.version}/mgear_{this.version}.zip"
 

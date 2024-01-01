@@ -21,6 +21,9 @@ description = (
 external = True
 
 
+plugin_for = ["maya"]
+
+
 def pre_build_commands():
     from rez.system import system
 
