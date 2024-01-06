@@ -30,7 +30,7 @@ file(
 file(GLOB_RECURSE py_files "${mgear_BINARY_DIR}/scripts/*.py")
 foreach(py_file ${py_files})
   if(UNIX)
-    execute_process(COMMAND sed -i "s/\\r//" ${py_file})
+    execute_process(COMMAND dos2unix --keepdate --oldfile ${py_file})
     # Some files have not been made Python 3 compatible
     execute_process(COMMAND sed -i -E "s/^(\\s+)print (.+)/\\1print(\\2)/"
                             ${py_file})
