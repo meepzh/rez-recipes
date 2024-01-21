@@ -13,7 +13,7 @@ def commands():
     # https://groups.google.com/g/rez-config/c/2IWclNTJEk0/m/MGAA-ZB-BwAJ
     env.PYTHON_EXE = "python"
 
-    if building and this._cmake_path:
+    if building and hasattr(this, "_cmake_path"):
         env.CMAKE_MODULE_PATH.append("{this._cmake_path}")
 
 
@@ -28,35 +28,11 @@ external = True
 
 @early()
 def tools():
-    from rez.package_py_utils import exec_command
-
-    tools = []
-
-    try:
-        out, err = exec_command("tools", ["pacman", "-Ql", "python"])
-    except FileNotFoundError:
-        py_major, py_minor, _ = this.__version.split(".")
-        tools = ["2to3", f"2to3-{py_major}.{py_minor}"]
-        for version in (
-            "",
-            py_major,
-            f"{py_major}.{py_minor}",
-        ):
-            for tool in (
-                "idle",
-                "pydoc",
-                "python",
-            ):
-                tools.append(f"{tool}{version}")
-    else:
-        for path in out.split("\n"):
-            if not path.startswith("python /usr/bin"):
-                continue
-            tool = path.rpartition("/")[2]
-            if tool:
-                tools.append(tool)
-
-    return tools
+    return (
+        _generate_tools_from_pacman()
+        or _generate_tools_from_bin_path()
+        or _generate_default_tools()
+    )
 
 
 uuid = "recipes.python"
@@ -73,8 +49,7 @@ def version():
 _native = True
 
 
-@early()
-def _bin_path() -> str:
+def __bin_path() -> str:
     """Determines Python's binaries path.
 
     Returns:
@@ -89,11 +64,11 @@ def _bin_path() -> str:
 
 
 @early()
-def _cmake_path() -> str:
+def _cmake_path() -> str | None:
     """Determines Python's CMake module path.
 
     Returns:
-        The path.
+        The path, if found.
     """
     import pathlib
     from rez.package_py_utils import exec_command
@@ -101,12 +76,80 @@ def _cmake_path() -> str:
     try:
         out, err = exec_command("tools", ["pacman", "-Ql", "cmake"])
     except FileNotFoundError:
-        return None
+        pass
     else:
         for path in out.split("\n"):
             if path.endswith("FindPython.cmake"):
                 path = path.partition(" ")[2]
                 return str(pathlib.Path(path).parent)
+
+    return None
+
+
+def _generate_default_tools() -> list[str]:
+    """Generates a default list of Python tools based on the Python version.
+
+    Returns:
+        The tool names.
+    """
+    py_major, py_minor, _ = __version.split(".")
+    tools_ = ["2to3", f"2to3-{py_major}.{py_minor}"]
+    for version_ in (
+        "",
+        py_major,
+        f"{py_major}.{py_minor}",
+    ):
+        for tool in (
+            "idle",
+            "pydoc",
+            "python",
+        ):
+            tools_.append(f"{tool}{version_}")
+    return tools_
+
+
+def _generate_tools_from_bin_path() -> list[str] | None:
+    """Determines a list of Python tools from the bin path in which a typical Windows
+    Python installation is expected to be found.
+
+    Returns:
+        The tool names, if any were found.
+    """
+    from itertools import chain
+    import pathlib
+
+    install_root = pathlib.Path(_bin_path)
+    tools_: list[str] = []
+    for tool in chain(
+        install_root.glob("*.exe"), install_root.joinpath("Scripts").glob("*.exe")
+    ):
+        tools_.append(tool.stem)
+    return tools_
+
+
+def _generate_tools_from_pacman() -> list[str] | None:
+    """Determines a list of Python tools from the pacman package manager.
+
+    Returns:
+        The tool names, if any were found.
+    """
+    from rez.package_py_utils import exec_command
+
+    tools_: list[str] = []
+
+    try:
+        out, err = exec_command("tools", ["pacman", "-Ql", "python"])
+    except FileNotFoundError:
+        return None
+
+    for path in out.split("\n"):
+        if not path.startswith("python /usr/bin"):
+            continue
+        tool = path.rpartition("/")[2]
+        if tool:
+            tools_.append(tool)
+
+    return tools_
 
 
 @early()
@@ -134,4 +177,5 @@ def _version() -> str:
     )
 
 
+_bin_path = __bin_path()
 __version = _version()
