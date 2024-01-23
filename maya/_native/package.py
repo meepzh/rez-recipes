@@ -54,8 +54,12 @@ def requires():
 
 @early()
 def tools():
-    tools = [
+    import pathlib
+    from rez.system import system
+
+    potential_tools = [
         "BatchRenderWrapper",
+        "FieldAssembler",
         "FurRenderer",
         "Render",
         "blur2d",
@@ -69,15 +73,30 @@ def tools():
         "imgcvt",
         "imgdiff",
         "interlace",
+        "mayabatch",
         "mayald",
         "mayapy",
+        "quicktimeShim",
         "senddmp",
+        "xpm2bmp",
     ]
 
+    # Add variations of the Maya executable
     major = this.__version.partition(".")[0]
-    tools.append(f"maya{major}")
+    potential_tools.append(f"maya{major}")
+    potential_tools.append("maya")
 
-    return tools
+    # Filter for tools that actually exist
+    bin_path = pathlib.Path(this._bin_path)
+    suffix = ".exe" if system.platform == "windows" else ""
+
+    tools_ = []
+    for tool in potential_tools:
+        test_path = bin_path.joinpath(tool).with_suffix(suffix)
+        if test_path.is_file():
+            tools_.append(tool)
+
+    return tools_
 
 
 uuid = "recipes.maya"

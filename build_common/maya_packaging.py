@@ -21,17 +21,14 @@ def bin_path() -> str:
     Returns:
         The path.
     """
-    try:
-        out, err = exec_command("bin_path", ["pacman", "-Ql", "maya"])
-    except FileNotFoundError:
+    path = _get_bin_path_from_pacman() or _get_bin_path_from_winreg()
+
+    if not path:
         from rez.exceptions import InvalidPackageError
 
-        raise InvalidPackageError("Cannot determine 'bin_path' without 'pacman'")
-    else:
-        for path in out.split("\n"):
-            if path.endswith("bin/mayapy"):
-                path = path.partition(" ")[2]
-                return str(pathlib.Path(path).parent)
+        raise InvalidPackageError("Could not determine Maya's bin path")
+
+    return path
 
 
 def exec_mayapy(
@@ -117,8 +114,8 @@ def latest_existing_package() -> Package:
     """
     packages = []
     for package in iter_packages("maya"):
-        bin_path = getattr(package, "_bin_path", None)
-        if bin_path and pathlib.Path(bin_path).is_dir():
+        bin_path_ = getattr(package, "_bin_path", None)
+        if bin_path_ and pathlib.Path(bin_path_).is_dir():
             packages.append(package)
 
     if not packages:
@@ -130,3 +127,55 @@ def latest_existing_package() -> Package:
 
     packages = SortedOrder(descending=True).reorder(packages)
     return packages[0]
+
+
+def _get_bin_path_from_pacman() -> str | None:
+    """Determines Maya's binaries path from the pacman package manager.
+
+    Returns:
+        The path, if found.
+    """
+    try:
+        out, err = exec_command("bin_path", ["pacman", "-Ql", "maya"])
+    except FileNotFoundError:
+        pass
+    else:
+        for path in out.split("\n"):
+            if path.endswith("bin/mayapy"):
+                path = path.partition(" ")[2]
+                return str(pathlib.Path(path).parent)
+
+    return None
+
+
+def _get_bin_path_from_winreg() -> str | None:
+    """Determines Maya's binaries path from the Windows registry.
+
+    Returns:
+        The path, if found.
+    """
+    try:
+        import winreg
+    except ModuleNotFoundError:
+        return None
+
+    with winreg.OpenKey(
+        winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\Autodesk\Maya"
+    ) as maya_key:
+        # Iterate through the sub-keys to determine the highest Maya installation year
+        key_count, _, _ = winreg.QueryInfoKey(maya_key)
+        max_year = ""
+        for index in range(key_count):
+            year = winreg.EnumKey(maya_key, index)
+            if year.isdigit() and year > max_year:
+                max_year = year
+
+        if not max_year:
+            return None
+
+        with winreg.OpenKey(
+            maya_key, max_year + r"\Setup\InstallPath"
+        ) as install_path_key:
+            value, _ = winreg.QueryValueEx(install_path_key, "MAYA_INSTALL_LOCATION")
+
+    return str(pathlib.Path(value, "bin"))
