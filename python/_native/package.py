@@ -138,7 +138,7 @@ def _generate_tools_from_pacman() -> list[str] | None:
     tools_: list[str] = []
 
     try:
-        out, err = exec_command("tools", ["pacman", "-Ql", "python"])
+        out, err = exec_command("tools", ["pacman", "--query", "--list", "python"])
     except FileNotFoundError:
         return None
 

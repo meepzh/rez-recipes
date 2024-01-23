@@ -136,7 +136,7 @@ def _get_bin_path_from_pacman() -> str | None:
         The path, if found.
     """
     try:
-        out, err = exec_command("bin_path", ["pacman", "-Ql", "maya"])
+        out, err = exec_command("bin_path", ["pacman", "--query", "--list", "maya"])
     except FileNotFoundError:
         pass
     else:
