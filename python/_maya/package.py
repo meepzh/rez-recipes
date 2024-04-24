@@ -16,13 +16,10 @@ description = "Dummy package for Maya's internal Python installation."
 external = True
 
 
-requires = ["maya-**"]
-
-
 uuid = "recipes.python"
 
 
-variants = [["platform-**", "arch-**", "os-**"]]
+variants = [["platform-**", "arch-**", "os-**", "maya-**"]]
 
 
 @early()
