@@ -56,7 +56,9 @@ def _cmake_path() -> str:
     from rez.package_py_utils import exec_command
 
     try:
-        out, err = exec_command("tools", ["pacman", "--query", "--list", "pyside2"])
+        out, err = exec_command(
+            "_cmake_path", ["pacman", "--query", "--list", "pyside2"]
+        )
     except FileNotFoundError:
         return None
     else:

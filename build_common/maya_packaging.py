@@ -95,7 +95,7 @@ def get_python_version(cached_bin_path: str = None) -> str:
     cached_bin_path = cached_bin_path or bin_path()
 
     return exec_mayapy(
-        "_version",
+        "python_version",
         ["import platform", "print(platform.python_version())"],
         cached_bin_path,
         initialize=False,
