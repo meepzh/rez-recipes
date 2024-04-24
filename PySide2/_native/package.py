@@ -46,11 +46,11 @@ _native = True
 
 
 @early()
-def _cmake_path() -> str:
+def _cmake_path() -> str | None:
     """Determines PySide2's CMake module path.
 
     Returns:
-        The path.
+        The path, if found.
     """
     import pathlib
     from rez.package_py_utils import exec_command

@@ -34,7 +34,7 @@ def bin_path() -> str:
 def exec_mayapy(
     attr: str,
     src: Iterable[str] | str,
-    cached_bin_path: str = None,
+    cached_bin_path: str = "",
     initialize: bool = True,
 ) -> str:
     """Uses mayapy to determine a package attribute.
@@ -80,7 +80,7 @@ def exec_mayapy(
     return out.strip()
 
 
-def get_python_version(cached_bin_path: str = None) -> str:
+def get_python_version(cached_bin_path: str = "") -> str:
     """Determines the version of Maya's internal Python installation.
 
     Args:

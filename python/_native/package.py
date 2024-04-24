@@ -108,7 +108,7 @@ def _generate_default_tools() -> list[str]:
     return tools_
 
 
-def _generate_tools_from_bin_path() -> list[str] | None:
+def _generate_tools_from_bin_path() -> list[str]:
     """Determines a list of Python tools from the bin path in which a typical Windows
     Python installation is expected to be found.
 

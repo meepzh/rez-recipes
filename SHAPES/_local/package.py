@@ -56,7 +56,7 @@ def version():
     raise InvalidPackageError("Could not find a version number to use from versions.md")
 
 
-def _extract_version_from_md(md_file: typing.IO) -> str:
+def _extract_version_from_md(md_file: typing.IO) -> str | None:
     """Searches the versions.md file for the first version string it can find.
 
     Returns:
@@ -74,7 +74,7 @@ def _extract_version_from_md(md_file: typing.IO) -> str:
     return None
 
 
-def _find_version_from_args() -> str:
+def _find_version_from_args() -> str | None:
     """Searches the arguments to rez-build for the SHAPES download to extract and search
     for version information.
 
@@ -85,7 +85,7 @@ def _find_version_from_args() -> str:
     import re
     import sys
 
-    download_path = None
+    download_path = ""
     variable_pattern = re.compile(r"-DSHAPES_DOWNLOAD(:\w+)?=(.*)")
     for arg in sys.argv:
         match = variable_pattern.search(arg)
@@ -104,7 +104,7 @@ def _find_version_from_args() -> str:
     return None
 
 
-def _find_version_from_build() -> str:
+def _find_version_from_build() -> str | None:
     """Searches the build directory for version information on SHAPES.
 
     Returns:
@@ -113,7 +113,7 @@ def _find_version_from_build() -> str:
     import os
     import pathlib
 
-    versions_path = None
+    versions_path = ""
     for dirpath, dirnames, filenames in os.walk("build"):
         if "versions.md" in filenames:
             versions_path = pathlib.Path(dirpath, "versions.md")
