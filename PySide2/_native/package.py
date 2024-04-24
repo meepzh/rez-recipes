@@ -60,12 +60,14 @@ def _cmake_path() -> str:
             "_cmake_path", ["pacman", "--query", "--list", "pyside2"]
         )
     except FileNotFoundError:
-        return None
+        pass
     else:
         for path in out.split("\n"):
             if path.endswith("PySide2Config.cmake"):
                 path = path.partition(" ")[2]
                 return str(pathlib.Path(path).parent)
+
+    return None
 
 
 def _version() -> str:
