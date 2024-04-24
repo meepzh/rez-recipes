@@ -63,7 +63,7 @@ def _cmake_path() -> str:
         return None
     else:
         for path in out.split("\n"):
-            if path.endswith(".cmake"):
+            if path.endswith("PySide2Config.cmake"):
                 path = path.partition(" ")[2]
                 return str(pathlib.Path(path).parent)
 
