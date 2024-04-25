@@ -20,7 +20,13 @@ description = "Dummy package for Maya's internal PySide2 installation."
 external = True
 
 
-requires = ["maya-**"]
+hashed_variants = True
+
+
+@early()
+def requires():
+    qt_version = ".".join(this.__version.split(".")[:3])  # Strip extra numbers
+    return ["Qt-" + qt_version]
 
 
 @early()
@@ -39,7 +45,17 @@ def tools():
 uuid = "recipes.PySide2"
 
 
-variants = [["platform-**", "arch-**", "os-**"]]
+@early()
+def variants():
+    return [
+        [
+            "platform-**",
+            "arch-**",
+            "os-**",
+            "maya-**",
+            f"python-{this.__python_version.rpartition('.')[0]}",
+        ]
+    ]
 
 
 @early()
@@ -58,13 +74,13 @@ def _version() -> str:
     Returns:
         The version.
     """
-    return maya_packaging.exec_mayapy(
-        "_version",
-        ["import PySide2", "print(PySide2.__version__)"],
-        __maya_package._bin_path,
-        initialize=False,
+    return maya_packaging.get_PySide_version(
+        PySide_module="PySide2", cached_bin_path=__maya_package._bin_path
     )
 
 
 __maya_package = maya_packaging.latest_existing_package()
+__python_version = maya_packaging.get_python_version(
+    cached_bin_path=__maya_package._bin_path
+)
 __version = _version()

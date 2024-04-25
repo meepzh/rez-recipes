@@ -25,16 +25,25 @@ external = True
 
 @early()
 def requires():
-    from rez.package_py_utils import find_site_python
-
-    python_pkg = find_site_python("PySide2")
-    return [python_pkg.qualified_name]
+    return ["Qt-" + this.__version]
 
 
 uuid = "recipes.PySide2"
 
 
-variants = [["platform-**", "arch-**", "os-**"]]
+@early()
+def variants():
+    from rez.package_py_utils import find_site_python
+
+    python_pkg = find_site_python("PySide2")
+    return [
+        [
+            "platform-**",
+            "arch-**",
+            "os-**",
+            f"python-{python_pkg.version.rpartition('.')[0]}",
+        ]
+    ]
 
 
 @early()

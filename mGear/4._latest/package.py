@@ -42,6 +42,7 @@ def variants():
             "arch-**",
             "maya-*",
             f"python-{this.__python_version.rpartition('.')[0]}",
+            __PySide_module,
         ]
     ]
 
@@ -74,4 +75,6 @@ def version():
     return latest_tag["name"]
 
 
-__python_version = maya_packaging.get_python_version()
+__maya_bin_path = maya_packaging.get_bin_path()
+__PySide_module = maya_packaging.get_PySide_module(cached_bin_path=__maya_bin_path)
+__python_version = maya_packaging.get_python_version(cached_bin_path=__maya_bin_path)

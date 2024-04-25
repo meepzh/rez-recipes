@@ -36,13 +36,14 @@ def requires():
     python_version = maya_packaging.get_python_version(cached_bin_path=this._bin_path)
     requires.append(f"~python-{python_version}-_maya")
 
-    pyside2_ver = maya_packaging.exec_mayapy(
-        "requires",
-        ["import PySide2", "print(PySide2.__version__)"],
-        this._bin_path,
-        initialize=False,
+    Qt_version = maya_packaging.get_Qt_version(cached_bin_path=this._bin_path)
+    requires.append(f"~Qt-{Qt_version}-_maya")
+
+    PySide_module = maya_packaging.get_PySide_module(cached_bin_path=this._bin_path)
+    PySide_version = maya_packaging.get_PySide_version(
+        PySide_module, cached_bin_path=this._bin_path
     )
-    requires.append(f"~PySide2-{pyside2_ver}-_maya")
+    requires.append(f"~{PySide_module}-{PySide_version}-_maya")
 
     return requires
 

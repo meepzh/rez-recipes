@@ -80,6 +80,57 @@ def get_bin_path() -> str:
     return path
 
 
+def get_PySide_module(cached_bin_path: str = "") -> str:
+    """Determines the module name of Maya's internal PySide installation.
+
+    Args:
+        cached_bin_path: The bin path of the mayapy executable to reuse.
+
+    Raises:
+        InvalidPackageError: When mayapy returns an error code.
+
+    Returns:
+        The name.
+    """
+    cached_bin_path = cached_bin_path or get_bin_path()
+
+    return exec_mayapy(
+        "PySide_module",
+        [
+            "import importlib.util",
+            "print('PySide2') if importlib.util.find_spec('PySide2') else None",
+            "print('PySide6') if importlib.util.find_spec('PySide6') else None",
+        ],
+        cached_bin_path,
+        initialize=False,
+    )
+
+
+def get_PySide_version(PySide_module: str = "", cached_bin_path: str = "") -> str:
+    """Determines the version of Maya's internal PySide installation.
+
+    Args:
+        PySide_module: The name of the module to retrieve a version for. If not
+            provided, then the name will be automatically determined.
+        cached_bin_path: The bin path of the mayapy executable to reuse.
+
+    Raises:
+        InvalidPackageError: When mayapy returns an error code.
+
+    Returns:
+        The version.
+    """
+    PySide_module = PySide_module or get_PySide_module()
+    cached_bin_path = cached_bin_path or get_bin_path()
+
+    return exec_mayapy(
+        "PySide_version",
+        [f"import {PySide_module}", f"print({PySide_module}.__version__)"],
+        cached_bin_path,
+        initialize=False,
+    )
+
+
 def get_python_version(cached_bin_path: str = "") -> str:
     """Determines the version of Maya's internal Python installation.
 
@@ -99,6 +150,40 @@ def get_python_version(cached_bin_path: str = "") -> str:
         ["import platform", "print(platform.python_version())"],
         cached_bin_path,
         initialize=False,
+    )
+
+
+def get_Qt_version(cached_bin_path: str = "") -> str:
+    """Determines the version of Maya's internal Qt installation.
+
+    Args:
+        cached_bin_path: The path to search for Qt binaries.
+
+    Raises:
+        InvalidPackageError: When the version can't be determined.
+
+    Returns:
+        The version.
+    """
+    import re
+    from rez.exceptions import InvalidPackageError
+
+    cached_bin_path = cached_bin_path or get_bin_path()
+    qmake_path = pathlib.Path(cached_bin_path).joinpath("qmake")
+
+    try:
+        out, err = exec_command("version", [str(qmake_path), "-v"])
+    except FileNotFoundError:
+        raise InvalidPackageError(
+            f"Could not find qmake in Maya bin path: {cached_bin_path}"
+        )
+
+    matches = re.search(r"Qt version (\d+\.\d+\.\d+)", out)
+    if matches:
+        return matches.groups(1)[0]
+
+    raise InvalidPackageError(
+        f"Could not determine Qt's version string from qmake: {out}"
     )
 
 
