@@ -39,7 +39,7 @@ def _site_paths():
     paths_literal = maya_packaging.exec_mayapy(
         "_site_paths",
         ["import site", "print(site.getsitepackages())"],
-        __maya_package._bin_path,
+        cached_bin_path=__maya_package._bin_path,
         initialize=False,
     )
     return ast.literal_eval(paths_literal)

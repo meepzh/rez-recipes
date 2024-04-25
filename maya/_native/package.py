@@ -33,13 +33,8 @@ has_plugins = True
 def requires():
     requires = []
 
-    python_ver = maya_packaging.exec_mayapy(
-        "requires",
-        ["import platform", "print(platform.python_version())"],
-        this._bin_path,
-        initialize=False,
-    )
-    requires.append(f"~python-{python_ver}-_maya")
+    python_version = maya_packaging.get_python_version(cached_bin_path=this._bin_path)
+    requires.append(f"~python-{python_version}-_maya")
 
     pyside2_ver = maya_packaging.exec_mayapy(
         "requires",
@@ -130,7 +125,7 @@ def _version() -> str:
                 ".{cmds.about(cutIdentifier=True)}')"
             ),
         ],
-        _bin_path,
+        cached_bin_path=_bin_path,
     )
     return out.rpartition("\n")[2]
 
