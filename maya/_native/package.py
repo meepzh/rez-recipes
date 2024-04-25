@@ -135,5 +135,5 @@ def _version() -> str:
     return out.rpartition("\n")[2]
 
 
-_bin_path = maya_packaging.bin_path()
+_bin_path = maya_packaging.get_bin_path()
 __version = _version()

@@ -12,25 +12,6 @@ from rez.package_order import SortedOrder
 from rez.package_py_utils import exec_command
 
 
-def bin_path() -> str:
-    """Determines Maya's binaries path.
-
-    Raises:
-        InvalidPackageError: When the bin path cannot be determined.
-
-    Returns:
-        The path.
-    """
-    path = _get_bin_path_from_pacman() or _get_bin_path_from_winreg()
-
-    if not path:
-        from rez.exceptions import InvalidPackageError
-
-        raise InvalidPackageError("Could not determine Maya's bin path")
-
-    return path
-
-
 def exec_mayapy(
     attr: str,
     src: Iterable[str] | str,
@@ -59,7 +40,7 @@ def exec_mayapy(
     if initialize:
         src = ["import maya.standalone", "maya.standalone.initialize()"] + src
 
-    cached_bin_path = cached_bin_path or bin_path()
+    cached_bin_path = cached_bin_path or get_bin_path()
 
     mayapy_bin = pathlib.Path(cached_bin_path, "mayapy")
     proc = subprocess.Popen(
@@ -80,6 +61,25 @@ def exec_mayapy(
     return out.strip()
 
 
+def get_bin_path() -> str:
+    """Determines Maya's binaries path.
+
+    Raises:
+        InvalidPackageError: When the bin path cannot be determined.
+
+    Returns:
+        The path.
+    """
+    path = _get_bin_path_from_pacman() or _get_bin_path_from_winreg()
+
+    if not path:
+        from rez.exceptions import InvalidPackageError
+
+        raise InvalidPackageError("Could not determine Maya's bin path")
+
+    return path
+
+
 def get_python_version(cached_bin_path: str = "") -> str:
     """Determines the version of Maya's internal Python installation.
 
@@ -92,7 +92,7 @@ def get_python_version(cached_bin_path: str = "") -> str:
     Returns:
         The version.
     """
-    cached_bin_path = cached_bin_path or bin_path()
+    cached_bin_path = cached_bin_path or get_bin_path()
 
     return exec_mayapy(
         "python_version",
@@ -114,8 +114,8 @@ def latest_existing_package() -> Package:
     """
     packages = []
     for package in iter_packages("maya"):
-        bin_path_ = getattr(package, "_bin_path", None)
-        if bin_path_ and pathlib.Path(bin_path_).is_dir():
+        bin_path = getattr(package, "_bin_path", None)
+        if bin_path and pathlib.Path(bin_path).is_dir():
             packages.append(package)
 
     if not packages:
