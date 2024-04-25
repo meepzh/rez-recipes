@@ -53,26 +53,30 @@ def version():
     import re
     from urllib.request import urlopen
 
-    with urlopen("https://api.github.com/repos/mgear-dev/mgear4/tags") as response:
-        tag_data = json.load(response)
+    with urlopen("https://api.github.com/repos/mgear-dev/mgear4/releases") as response:
+        release_data = json.load(response)
 
-    valid_tag_pattern = re.compile(r"\d+\.\d+\.\d+$")
-    latest_tag = None
-    for tag in tag_data:
-        if not valid_tag_pattern.match(tag["name"]):
+    valid_release_pattern = re.compile(r"\d+\.\d+\.\d+$")
+    latest_release = None
+    for release in release_data:
+        if not valid_release_pattern.match(release["tag_name"]):
+            # Filter against tags like 4.0.0_beta1
             continue
-        tag["version_tuple"] = tuple(tag["name"].split("."))
-        if not latest_tag or tag["version_tuple"] > latest_tag["version_tuple"]:
-            latest_tag = tag
+        release["version_tuple"] = tuple(release["tag_name"].split("."))
+        if (
+            not latest_release
+            or release["version_tuple"] > latest_release["version_tuple"]
+        ):
+            latest_release = release
 
-    if not latest_tag:
+    if not latest_release:
         from rez.exceptions import InvalidPackageError
 
         raise InvalidPackageError(
-            "Could not determine the latest version tag for mGear"
+            "Could not determine the latest regular release for mGear"
         )
 
-    return latest_tag["name"]
+    return latest_release["tag_name"]
 
 
 __maya_bin_path = maya_packaging.get_bin_path()
