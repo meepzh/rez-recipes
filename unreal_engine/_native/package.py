@@ -48,7 +48,7 @@ variants = [["platform-**", "arch-**", "os-**"]]
 
 @early()
 def version():
-    version_ = _get_version_from_pacman()
+    version_ = _get_version_from_bin_path() or _get_version_from_pacman()
 
     if not version_:
         from rez.exceptions import InvalidPackageError
@@ -70,7 +70,7 @@ def __bin_path() -> str:
     Returns:
         The path.
     """
-    path = _get_bin_path_from_pacman()
+    path = _get_bin_path_from_pacman() or _get_bin_path_from_winreg()
 
     if not path:
         from rez.exceptions import InvalidPackageError
@@ -102,6 +102,67 @@ def _get_bin_path_from_pacman() -> str | None:
                 return str(pathlib.Path(path).parent)
 
     return None
+
+
+def _get_bin_path_from_winreg() -> str | None:
+    """Determines Unreal Engine's binaries path from the Windows registry.
+
+    Returns:
+        The path, if found.
+    """
+    import pathlib
+    import re
+
+    try:
+        import winreg
+    except ModuleNotFoundError:
+        return None
+
+    version_pattern = re.compile(r"^\d+\.\d+$")
+
+    with winreg.OpenKey(
+        winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\EpicGames\Unreal Engine"
+    ) as ue_key:
+        # Iterate through the sub-keys to determine the highest installed version
+        key_count, _, _ = winreg.QueryInfoKey(ue_key)
+        max_version = ""
+        for index in range(key_count):
+            version = winreg.EnumKey(ue_key, index)
+            if version_pattern.match(version) and version > max_version:
+                max_version = version
+
+        if not max_version:
+            return None
+
+        with winreg.OpenKey(ue_key, max_version) as version_key:
+            value, _ = winreg.QueryValueEx(version_key, "InstalledDirectory")
+
+    return str(pathlib.Path(value, "Engine", "Binaries", "Win64"))
+
+
+def _get_version_from_bin_path() -> str | None:
+    """Determines Unreal Engine's version from the version data in the bin path.
+
+    Returns:
+        The version, if found.
+    """
+    import json
+    import pathlib
+
+    version_path = pathlib.Path(_bin_path).joinpath("UnrealEditor.version")
+    if not version_path.exists():
+        return None
+
+    with open(version_path) as version_file:
+        version_data = json.load(version_file)
+
+    return ".".join(
+        (
+            str(version_data["MajorVersion"]),
+            str(version_data["MinorVersion"]),
+            str(version_data["PatchVersion"]),
+        )
+    )
 
 
 def _get_version_from_pacman() -> str | None:
