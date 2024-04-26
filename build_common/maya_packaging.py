@@ -167,24 +167,31 @@ def get_Qt_version(cached_bin_path: str = "") -> str:
     """
     import re
     from rez.exceptions import InvalidPackageError
+    from rez.system import system
 
     cached_bin_path = cached_bin_path or get_bin_path()
-    qmake_path = pathlib.Path(cached_bin_path).joinpath("qmake")
+    suffix = ".exe" if system.platform == "windows" else ""
 
-    try:
-        out, err = exec_command("version", [str(qmake_path), "-v"])
-    except FileNotFoundError:
+    qt_bin_path = pathlib.Path(cached_bin_path).joinpath("qmake").with_suffix(suffix)
+    search_pattern = r"Qt version (\d+\.\d+\.\d+)"
+    bin_args = ["-v"]
+
+    if not qt_bin_path.exists():
+        qt_bin_path = qt_bin_path.parent.joinpath("qtdiag").with_suffix(suffix)
+        search_pattern = r"Qt (\d+\.\d+\.\d+)"
+        bin_args = []
+
+    if not qt_bin_path.exists():
         raise InvalidPackageError(
-            f"Could not find qmake in Maya bin path: {cached_bin_path}"
+            f"Could not find Qt in Maya bin path: {cached_bin_path}"
         )
 
-    matches = re.search(r"Qt version (\d+\.\d+\.\d+)", out)
+    out, err = exec_command("version", [str(qt_bin_path)] + bin_args)
+    matches = re.search(search_pattern, out)
     if matches:
         return matches.groups(1)[0]
 
-    raise InvalidPackageError(
-        f"Could not determine Qt's version string from qmake: {out}"
-    )
+    raise InvalidPackageError(f"Could not determine Qt's version string: {out}")
 
 
 def latest_existing_package() -> Package:
