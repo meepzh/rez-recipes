@@ -22,21 +22,31 @@ file(RELATIVE_PATH build_subpath ${CMAKE_SOURCE_DIR} ${ngskintools_BINARY_DIR})
 # Reduce components in PackageContents.xml
 if(APPLE)
   set(maya_package_platform "macOS")
+  set(plugin_extension "bundle")
 elseif(WIN32)
   set(maya_package_platform "win64")
+  set(plugin_extension "mll")
 else()
   set(maya_package_platform $ENV{REZ_PLATFORM_VERSION})
+  set(plugin_extension "so")
 endif()
-if(UNIX)
-  execute_process(COMMAND sed -i "/\\/Components/q"
-                          "${ngskintools_BINARY_DIR}/PackageContents.xml")
-endif()
+
+set(package_contents_file "${ngskintools_BINARY_DIR}/PackageContents.xml")
+file(STRINGS ${package_contents_file} lines)
+file(WRITE ${package_contents_file} "")
+foreach(line IN LISTS lines)
+  file(APPEND ${package_contents_file} "${line}\n")
+  if(${line} MATCHES "<\\/Components>")
+    break()
+  endif()
+endforeach()
+
 file(
-  APPEND "${ngskintools_BINARY_DIR}/PackageContents.xml"
+  APPEND ${package_contents_file}
   "
 \t<Components>
 \t\t<RuntimeRequirements SupportPath=\"./Contents/docs/\" OS=\"${maya_package_platform}\" Platform=\"Maya\" SeriesMin=\"$ENV{REZ_MAYA_MAJOR_VERSION}\" SeriesMax=\"$ENV{REZ_MAYA_MAJOR_VERSION}\" />
-\t\t<ComponentEntry ModuleName=\"./Contents/plug-ins/ngSkinTools2.so\" />
+\t\t<ComponentEntry ModuleName=\"./Contents/plug-ins/ngSkinTools2.${plugin_extension}\" />
 \t</Components>
 </ApplicationPackage>")
 
