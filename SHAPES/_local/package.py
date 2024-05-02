@@ -96,9 +96,7 @@ def _find_version_from_args() -> str | None:
         from zipfile import ZipFile
 
         with ZipFile(download_path) as download_file:
-            with download_file.open(
-                str(pathlib.Path("SHAPES", "versions.md"))
-            ) as versions_file:
+            with download_file.open("SHAPES/versions.md") as versions_file:
                 return _extract_version_from_md(versions_file)
 
     return None

@@ -1,10 +1,11 @@
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.20)
 
 include(FetchContent)
 include(RezBuild)
 
 message(NOTICE "Building from SHAPES download file at: ${SHAPES_DOWNLOAD}")
 
+cmake_path(CONVERT ${SHAPES_DOWNLOAD} TO_CMAKE_PATH_LIST SHAPES_DOWNLOAD)
 FetchContent_Declare(shapes URL ${SHAPES_DOWNLOAD})
 FetchContent_MakeAvailable(shapes)
 
