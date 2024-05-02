@@ -22,7 +22,7 @@ external = True
 
 
 def pre_build_commands():
-    env.QT_CMAKE_TAR_PATH = this._cmake_tar_path
+    env.QT_CMAKE_ARCHIVE_PATH = this._cmake_archive_path
 
 
 uuid = "recipes.qt"
@@ -50,7 +50,7 @@ _native = True
 
 
 @early()
-def _cmake_tar_path() -> str:
+def _cmake_archive_path() -> str:
     """Determines the location of the tarballed Qt5 CMake files.
 
     Returns:
@@ -59,7 +59,10 @@ def _cmake_tar_path() -> str:
     import pathlib
 
     cmake_path = pathlib.Path(__maya_bin_path).parent.joinpath("cmake")
-    return str(next(cmake_path.glob("*.tar.gz"), ""))
+    archive_path = str(next(cmake_path.glob("*.tar.gz"), ""))
+    if not archive_path:
+        archive_path = str(next(cmake_path.glob("*.zip"), ""))
+    return archive_path
 
 
 __maya_bin_path = maya_packaging.get_bin_path()
