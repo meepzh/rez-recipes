@@ -5,7 +5,7 @@ include(RezBuild)
 
 set(AUTODESK_PACKAGE_NAME
     "ngskintools2"
-    CACHE STRING)
+    CACHE STRING "The name of the Autodesk package")
 
 # Show download progress
 set(FETCHCONTENT_QUIET OFF)
