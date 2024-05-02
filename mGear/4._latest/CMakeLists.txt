@@ -35,6 +35,14 @@ foreach(py_file ${py_files})
     execute_process(COMMAND sed -i -E "s/^(\\s+)print (.+)/\\1print(\\2)/"
                             ${py_file})
   endif(UNIX)
+  if(WIN32)
+    # Some files have not been made Python 3 compatible
+    execute_process(
+      COMMAND
+        powershell -Command
+        "(get-content ${py_file}) | %{$_ -replace '^(\\s+)print (.+)', '\${1}print(\${2})'} | set-content ${py_file}"
+        COMMAND_ECHO STDOUT)
+  endif(WIN32)
 endforeach()
 # rez_install_python hardcodes the executable name, so use install_python
 # directly
