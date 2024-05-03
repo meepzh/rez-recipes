@@ -55,11 +55,26 @@ def __bin_path() -> str:
     Returns:
         The path.
     """
+    import pathlib
+    import re
+    import sys
     from rez.package_py_utils import exec_python
+
+    executable = ""
+    variable_pattern = re.compile(r"-DEXECUTABLE(:\w+)?=(.*)")
+    for arg in sys.argv:
+        match = variable_pattern.search(arg)
+        if match:
+            executable = match.group(2) or executable
+
+    kwargs = {}
+    if executable:
+        kwargs["executable"] = executable
 
     return exec_python(
         "_bin_path",
         ["import pathlib", "import sys", "print(pathlib.Path(sys.executable).parent)"],
+        **kwargs,
     )
 
 
@@ -156,10 +171,13 @@ def _generate_tools_from_pacman() -> list[str] | None:
 def _site_paths():
     """See `rez.package_py_utils.find_site_python <https://rez.readthedocs.io/en/stable/api/rez.package_py_utils.html#rez.package_py_utils.find_site_python>`_."""
     import ast
+    import pathlib
     from rez.package_py_utils import exec_python
 
     paths_literal = exec_python(
-        "_site_paths", ["import site", "print(site.getsitepackages())"]
+        "_site_paths",
+        ["import site", "print(site.getsitepackages())"],
+        executable=str(pathlib.Path(_bin_path, "python")),
     )
     return ast.literal_eval(paths_literal)
 
@@ -170,10 +188,13 @@ def _version() -> str:
     Returns:
         The version.
     """
+    import pathlib
     from rez.package_py_utils import exec_python
 
     return exec_python(
-        "version", ["import platform", "print(platform.python_version())"]
+        "version",
+        ["import platform", "print(platform.python_version())"],
+        executable=str(pathlib.Path(_bin_path, "python")),
     )
 
 
